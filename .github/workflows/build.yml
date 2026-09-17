@@ -51,7 +51,7 @@ jobs:
         with:
           gradle-version: "8.13"
 
-      - name: Paksa Java dan Kotlin ke JVM 17
+      - name: Samakan target Kotlin dengan Java
         working-directory: project
         run: |
           python3 - <<'PY'
@@ -60,18 +60,18 @@ jobs:
           p = Path("app/build.gradle.kts")
           s = p.read_text()
 
-          s = s.replace("JavaVersion.VERSION_1_8", "JavaVersion.VERSION_17")
-          s = s.replace('JavaVersion.VERSION_8', 'JavaVersion.VERSION_17')
-          s = s.replace('sourceCompatibility = "1.8"', 'sourceCompatibility = JavaVersion.VERSION_17')
-          s = s.replace('targetCompatibility = "1.8"', 'targetCompatibility = JavaVersion.VERSION_17')
-          s = s.replace('jvmTarget = "1.8"', 'jvmTarget = "17"')
-          s = s.replace("jvmTarget = '1.8'", 'jvmTarget = "17"')
+          s = s.replace('jvmTarget = "17"', 'jvmTarget = "1.8"')
+          s = s.replace("jvmTarget = '17'", 'jvmTarget = "1.8"')
 
           p.write_text(s)
 
-          print("=== build.gradle.kts setelah diperbaiki ===")
-          print(s)
+          print("Target Kotlin diatur ke JVM 1.8")
           PY
+
+      - name: Cek target JVM
+        working-directory: project
+        run: |
+          grep -n -E "jvmTarget|sourceCompatibility|targetCompatibility" app/build.gradle.kts || true
 
       - name: Build APK
         working-directory: project
