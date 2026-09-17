@@ -34,9 +34,33 @@ jobs:
         with:
           gradle-version: "8.13"
 
-      - name: Build APK
-        working-directory: project
-        run: gradle assembleDebug
+      - - name: Perbaiki JVM target
+  working-directory: project
+  run: |
+    python3 - <<'PY'
+    from pathlib import Path
+    p = Path("app/build.gradle.kts")
+    s = p.read_text()
+    s = s.replace(
+        '    compileSdk = 36\n',
+        '''    compileSdk = 36
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+'''
+    )
+    p.write_text(s)
+    PY
+
+- name: Build APK
+  working-directory: project
+  run: gradle assembleDebug
 
       - name: Simpan APK
         uses: actions/upload-artifact@v4
